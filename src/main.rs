@@ -1,4 +1,4 @@
-mod audio;
+mod media;
 mod config;
 mod error;
 mod executor;

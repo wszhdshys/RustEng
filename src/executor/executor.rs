@@ -1,5 +1,7 @@
-use crate::audio::player::PreBgm::Play;
-use crate::audio::player::{Player, PreBgm};
+use crate::media::player::PreBgm::Play;
+use crate::media::player::{Player, PreBgm};
+use crate::config::cg::CG_LENGTH;
+use crate::config::extra::save_extra_config;
 use crate::config::figure::FIGURE_CONFIG;
 use crate::config::save_load::SaveData;
 use crate::config::user::save_user_config;
@@ -19,8 +21,6 @@ use std::rc::Rc;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 use tokio::sync::mpsc::Sender;
-use crate::config::cg::CG_LENGTH;
-use crate::config::extra::save_extra_config;
 
 pub(crate) enum Jump {
     Label(Label),
@@ -214,7 +214,7 @@ impl Executor {
 
     pub async fn execute_get_ex(&self) -> Result<(), EngineError> {
         let mut ex_items = Vec::with_capacity(16);
-        
+
         let cgs = *self.cg.borrow();
         let mut i = 1;
         while i <= 63 {
@@ -224,14 +224,15 @@ impl Executor {
                     for j in 1..=*length {
                         if cgs & (1 << j + i - 1) != 0 {
                             if let Some((name, _)) = CG_LENGTH.find_by_id(j + i - 1) {
-                                images.push(Image::load_from_path(Path::new(&format!(
-                                    "{}{}.png",
-                                    ENGINE_CONFIG.cg_path(),
-                                    name
-                                )))
-                                    .unwrap());
-                            }
-                            else {
+                                images.push(
+                                    Image::load_from_path(Path::new(&format!(
+                                        "{}{}.png",
+                                        ENGINE_CONFIG.cg_path(),
+                                        name
+                                    )))
+                                    .unwrap(),
+                                );
+                            } else {
                                 return Err(EngineError::FileError);
                             }
                         } else {
@@ -239,11 +240,7 @@ impl Executor {
                         }
                     }
                     i = i + *length;
-                    ex_items.push((
-                        Rc::new(VecModel::from(images)).into(),
-                        l as i32,
-                        is_lock,
-                        ))
+                    ex_items.push((Rc::new(VecModel::from(images)).into(), l as i32, is_lock))
                 } else {
                     return Err(EngineError::FileError);
                 }
@@ -252,11 +249,11 @@ impl Executor {
                 ex_items.push((
                     Rc::new(VecModel::from(vec![Image::default()])).into(),
                     0,
-                    true
-                    ))
+                    true,
+                ))
             }
         }
-        
+
         if let Some(window) = self.weak.upgrade() {
             window.set_ex_items(Rc::new(VecModel::from(ex_items)).into());
         }
@@ -427,19 +424,30 @@ impl Executor {
             let scr = scr.borrow();
             //println!("开始快速播放立绘动画");
             if scr.clear.get(&scr.index()).is_some() {
-                DelayTX::clear_tx(&self.delay_tx).try_send(()).expect("clear_delay_tx send fali");
-                DelayTX::clear_tx(&self.delay_move_tx).try_send(()).expect("clear_delay_move_tx send fali");
-                DelayTX::clear_tx(&self.loop_move_tx).try_send(()).expect("clear_loop_move_tx send fali");
+                DelayTX::clear_tx(&self.delay_tx)
+                    .try_send(())
+                    .expect("clear_delay_tx send fali");
+                DelayTX::clear_tx(&self.delay_move_tx)
+                    .try_send(())
+                    .expect("clear_delay_move_tx send fali");
+                DelayTX::clear_tx(&self.loop_move_tx)
+                    .try_send(())
+                    .expect("clear_loop_move_tx send fali");
             } else {
-                DelayTX::skip_tx(&self.delay_tx).try_send(()).expect("skip_delay_tx send fali");
-                DelayTX::skip_tx(&self.delay_move_tx).try_send(()).expect("skip_delay_move_tx send fali");
-                DelayTX::skip_tx(&self.loop_move_tx).try_send(()).expect("skip_loop_move_tx send fali");
+                DelayTX::skip_tx(&self.delay_tx)
+                    .try_send(())
+                    .expect("skip_delay_tx send fali");
+                DelayTX::skip_tx(&self.delay_move_tx)
+                    .try_send(())
+                    .expect("skip_delay_move_tx send fali");
+                DelayTX::skip_tx(&self.loop_move_tx)
+                    .try_send(())
+                    .expect("skip_loop_move_tx send fali");
             }
             //println!("结束快速播放立绘动画");
         }
 
         {
-
             let mut text = self.text.write().unwrap();
             if text.is_running {
                 text.end();
@@ -586,6 +594,7 @@ impl Executor {
                 Command::Move { .. } => {
                     self.show_move(&command).await?;
                 }
+                Command::Video(ref video) => self.show_video(&video).await?,
                 Command::Clear(distance, position) => self.clean_fg(&distance, &position).await?,
                 Command::Jump(jump) => {
                     self.execute_jump(Jump::Label(jump)).await?;
@@ -639,12 +648,7 @@ impl Executor {
         };
 
         if let Some(window) = weak.upgrade() {
-            let image = Image::load_from_path(Path::new(&format!(
-                "{}{}.png",
-                path,
-                name
-            )))
-            .unwrap();
+            let image = Image::load_from_path(Path::new(&format!("{}{}.png", path, name))).unwrap();
             window.set_bg((
                 image,
                 x_offset.unwrap_or(0.0),
@@ -934,6 +938,10 @@ impl Executor {
         }
 
         Ok(())
+    }
+
+    async fn show_video(&self, video_name: &str) -> Result<(), EngineError> {
+        todo!()
     }
 }
 

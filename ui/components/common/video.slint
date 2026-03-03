@@ -1,0 +1,15 @@
+export component Video {
+    in property<image> video-frame;
+
+    callback clicked();
+
+    Image {
+        width: 100%;
+        height: 100%;
+        source: root.video-frame;
+    }
+
+    TouchArea {
+        clicked => { root.clicked(); }
+    }
+}

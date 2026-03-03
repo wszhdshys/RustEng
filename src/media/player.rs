@@ -20,7 +20,7 @@ pub enum PreBgm {
 
 impl Player {
     pub fn new() -> Self {
-        let (_stream, handle) = OutputStream::try_default().expect("Failed to open audio output");
+        let (_stream, handle) = OutputStream::try_default().expect("Failed to open media output");
         Self {
             sink: Arc::new(Mutex::new(None)),
             _stream,

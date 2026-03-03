@@ -58,3 +58,7 @@ impl From<toml::ser::Error> for EngineError {
         EngineError::SaveError
     }
 }
+
+impl From<ffmpeg_next::Error> for EngineError {
+    fn from(_: ffmpeg_next::Error) -> Self { EngineError::FileError }
+}

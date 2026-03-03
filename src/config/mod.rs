@@ -6,13 +6,13 @@ pub mod figure;
 pub mod initialize;
 pub mod save_load;
 
+pub mod cg;
+pub mod extra;
 pub mod system;
 pub mod text;
 pub mod user;
 pub mod voice;
 pub mod volume;
-pub mod extra;
-pub mod cg;
 
 lazy_static::lazy_static! {
     pub static ref ENGINE_CONFIG: EngineConfig = load_engine_config();
@@ -32,7 +32,7 @@ impl EngineConfig {
     pub fn background_path(&self) -> &str {
         &self.initialize.background_path
     }
-    
+
     pub fn cg_path(&self) -> &str {
         &self.initialize.cg_path
     }
@@ -43,6 +43,10 @@ impl EngineConfig {
 
     pub fn bgm_path(&self) -> &str {
         &self.initialize.bgm_path
+    }
+    
+    pub fn video_path(&self) -> &str {
+        &self.initialize.video_path
     }
 
     pub fn figure_path(&self) -> &str {

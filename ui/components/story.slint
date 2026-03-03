@@ -1,5 +1,6 @@
 import { CustomButton } from "common/button.slint";
 import { CustomRoundButton } from "common/round_button.slint";
+import { Video } from "common/video.slint";
 import { BackLogView } from "backlog.slint";
 import { Colors } from "../styles/colors.slint";
 
@@ -30,10 +31,12 @@ export component StoryView {
     in property <{ body: image, rate: float, offset: float }> fg-z1--2;
     in property <{ face: image, face-x: float, face-y: float }> face-z1--2;
     in property <{ x_offset: length, y_offset: length }> offset-z1--2;
+    in property <image> video-frame;
     in property <int> current-choose: 0;
     in-out property <bool> is_backlog;
     in-out property <bool> is-auto;
     in-out property <bool> is-skip;
+    in-out property <bool> is-video;
     in property <float> dialogue-opacity;
 
     callback auto-play(bool);
@@ -43,11 +46,12 @@ export component StoryView {
     callback backlog-jump(string, int);
     callback clicked();
     callback choose(string);
+    callback stop-video();
     callback settings();
     callback save-game();
     callback load-game();
 
-    TouchArea {
+    if !is-video: TouchArea {
         width: parent.width;
         height: parent.height;
 
@@ -60,6 +64,13 @@ export component StoryView {
                 reject
             }
         }
+    }
+
+    if is-video: Video {
+        width: parent.width;
+        height: parent.height;
+        video_frame: root.video-frame;
+        clicked => { root.stop-video() }
     }
 
     Rectangle {

@@ -35,9 +35,11 @@ export component MainWindow inherits Window {
     in property <{ body: image, rate: float, offset: float }> fg-z1--2;
     in property <{ face: image, face-x: float, face-y: float }> face-z1--2;
     in property <{ x_offset: length, y_offset: length }> offset-z1--2;
+    in property <image> video-frame;
     in property<bool> is-fullscreen: false;
     in-out property <bool> is_backlog: false;
     in-out property <bool> is-auto;
+    in-out property <bool> is-video;
     in-out property <bool> is-wait;
     in-out property <float> delay;
     in-out property <float> text-speed;
@@ -164,12 +166,14 @@ export component MainWindow inherits Window {
             fg-z1-1: root.fg-z1-1;
             face-z1-1: root.face-z1-1;
             offset-z1-1: root.offset-z1-1;
+            video-frame: root.video-frame;
             dialogue-opacity: root.dialogue-opacity;
 
             backlogs <=> root.backlogs;
             is_backlog <=> root.is_backlog;
             is-auto <=> root.is-auto;
             is-skip <=> root.is-skip;
+            is-video <=> root.is-video;
 
             auto-play(b) => {
                 root.auto-play(b);
@@ -188,6 +192,7 @@ export component MainWindow inherits Window {
             backlog-jump(s, i) => { root.backlog-jump(s, i); }
             clicked => { root.clicked(); }
             choose(text) => { root.choose(text); }
+            stop-video => { root.stop-video(); }
             save-game => {
                 root.auto-play(false);
                 root.skip-play(false);
@@ -240,6 +245,7 @@ export component MainWindow inherits Window {
     callback auto-play(bool);
     callback skip-play(bool);
     callback clicked();
+    callback stop-video();
     callback toggle-fullscreen();
     callback volume-changed();
     callback bgm-volume-changed();
