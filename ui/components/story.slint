@@ -65,6 +65,8 @@ export component StoryView {
         scroll-event(event) => {
             if (root.is-video) {
                 accept
+            } else if (event.delta-y == 0) {
+                accept
             } else if (event.delta-y > 0) {
                 root.backlog();
                 is_backlog = true;

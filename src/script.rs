@@ -91,6 +91,7 @@ pub(crate) struct Script {
     backlog: Vec<BackLogItem>,
     commands: Vec<Commands>,
     current_block: usize,
+    read_index: usize,
     current_bgm: String,
     pre_voice: Option<(SharedString, SharedString)>,
     timeline: Timeline,
@@ -109,6 +110,7 @@ impl Script {
             backlog: Vec::new(),
             commands: Vec::new(),
             current_block: 0,
+            read_index: 0,
             current_bgm: String::new(),
             pre_voice: None,
             timeline: Timeline::default(),
@@ -125,6 +127,9 @@ impl Script {
 
     pub(crate) fn next_command(&mut self) -> Option<&Commands> {
         let command = self.commands.get(self.current_block);
+        if self.read_index <= self.current_block {
+            self.read_index += 1;
+        }
         self.current_block += 1;
         command
     }
